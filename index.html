@@ -146,6 +146,70 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/11/19/redis-cluster/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zengjinlin">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="zengjinlin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/11/19/redis-cluster/" class="post-title-link" itemprop="url">redis-cluster</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-11-19 13:51:46 / Modified: 13:52:00" itemprop="dateCreated datePublished" datetime="2020-11-19T13:51:46+08:00">2020-11-19</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Redis集群"><a href="#Redis集群" class="headerlink" title="Redis集群"></a>Redis集群</h2><p>当使用网络分区的时候就会涉及数据的一致性，根据CAP定理：<strong>当网络分区发生时，一致性和可用性两难全</strong>，如何实现主节点与从节点的一致性就成为了难题，Redis通过保持最终一致的方式，实现主从数据异步同步，节点会努力追赶主节点，最终从节点的状态和主节点的状态保持一致。</p>
+<h4 id="增量同步"><a href="#增量同步" class="headerlink" title="增量同步"></a>增量同步</h4><p>redis同步的是指令流，主节点会将哪些对自己的状态产生修改性影响的指令记录在本地的Buffer中，然后异步将buffer中的指令同步到从节点，从节点执行同步指令，主节点反馈自己同步到哪里<br>缺点：buffer是有限的，如果buffer内容太多，之后的指令则会覆盖前面的指令</p>
+<h4 id="快照同步"><a href="#快照同步" class="headerlink" title="快照同步"></a>快照同步</h4><p>快照同步，主节点执行一次bgsave，将当前的内存数据全部存放到磁盘文件中，然后再将快照文件的内容全部传送回从节点</p>
+<h3 id="Sentinel"><a href="#Sentinel" class="headerlink" title="Sentinel"></a>Sentinel</h3><p>Sentinel负责监控redis集群的健康情况，如果一个节点挂了，集群可以正常运作<br><img src="https://img-blog.csdnimg.cn/20201119120604209.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzczNDI3MQ==,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>如果其中一个节点挂了，则会重新连接IP，查询数据的时候使用轮询的方式。<br>具体可以参考阿里Sentinel</p>
+<h3 id="Codis"><a href="#Codis" class="headerlink" title="Codis"></a>Codis</h3><p>在大数据高并发的场景下，单个的redis实例往往会比较受限制，限制在于redis的内存使用，而且单个redis的内存不宜过大，如果太大容易导致rdb文件过大，进一步导致主从同步的时候全量同步时间过长，在实例重启恢复时也会消耗很长的时间。所以应运而生出很多集群方案，类似codis<br><img src="https://img-blog.csdnimg.cn/20201119133657153.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzczNDI3MQ==,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>codies而且是无状态的，所以可以启动多个codies来支撑高QPS的场景<br>codies默认将所有的key划分为1024个槽位，首先对客户端的key进行crc32位运算得到hash值，然后对hash得到的整数对1024取余，这个余数就是对应的key的槽位，之后通过zookeeper方式维护一致性</p>
+<h3 id="Cluster"><a href="#Cluster" class="headerlink" title="Cluster"></a>Cluster</h3><p>Cluster集群使用了三个redis节点组成，他们之间通过一种特殊的二进制协议交互集群信息，与codies不同的是cluster使用了16384个槽位</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://example.com/2020/11/18/redis-frequent-use/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -507,7 +571,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">4</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
